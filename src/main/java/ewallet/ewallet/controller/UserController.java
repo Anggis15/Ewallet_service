@@ -1,6 +1,8 @@
 package ewallet.ewallet.controller;
 
 import ewallet.ewallet.config.JwtTokenUtil;
+import ewallet.ewallet.constant.MessageResponse;
+import ewallet.ewallet.entity.response.SuccesResponse;
 import ewallet.ewallet.model.UserModel;
 import ewallet.ewallet.repository.UserRepository;
 import ewallet.ewallet.service.JwtUserDetailService;
@@ -28,18 +30,12 @@ public class UserController {
     PasswordEncoder passwordEncoder;
     @Autowired
     UserRepository userRepository;
-//    private  AuthenticationManager authenticationManager;
-//
-//    @Autowired
-//    public AuthController(AuthenticationManager authenticationManager) {
-//        this.authenticationManager = authenticationManager;
-//    }
 
     @PostMapping("/registrasi")
     public ResponseEntity<String> insertData(@RequestBody UserModel userModel){
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         userRepository.save(userModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Berhasil dibuat");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Registrasi Berhasil di Lakukan");
     }
 
     @PostMapping("/login")
@@ -50,7 +46,7 @@ public class UserController {
         UserModel userEmail = userRepository.findByUsername(userModel.getUsername());
 
         final String token = jwtTokenUtil.generateToken(userDetails, userEmail.getEmail());
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new SuccesResponse<>(MessageResponse.SUCCESS_GET_DATA.toString(), token));
     }
 
     @PutMapping("/user/insertSaldo")
@@ -60,13 +56,9 @@ public class UserController {
         UserModel userDetail = userRepository.findByUsername(username);
         userDetail.setSaldo(userDetail.getSaldo()+saldo.getSaldo());
         userRepository.save(userDetail);
-        return ResponseEntity.ok("Saldo berhasil di tambahkan");
+        return ResponseEntity.ok(new SuccesResponse<>(MessageResponse.SUCCESS_UPDATE_DATA.toString(), userDetail));
     }
 
-    @GetMapping("/getUserDetail/{username}")
-    public ResponseEntity<?> getUser(@PathVariable("username") String username){
-        return ResponseEntity.ok(userRepository.findByUsername(username));
-    }
 
     private void authenticate(String username, String password) throws Exception {
         try {
