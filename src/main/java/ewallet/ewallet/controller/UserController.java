@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @RestController
 public class UserController {
@@ -59,7 +61,12 @@ public class UserController {
         return ResponseEntity.ok(new SuccesResponse<>(MessageResponse.SUCCESS_UPDATE_DATA.toString(), userDetail));
     }
 
-
+    @GetMapping("/user/checkSaldo")
+    public ResponseEntity<?> getMethodName(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        String username = jwtTokenUtil.getUsernameFromToken(token.substring(7));
+        UserModel userModel = userRepository.findByUsername(username);
+        return ResponseEntity.ok(new SuccesResponse<>(MessageResponse.SUCCESS_UPDATE_DATA.toString(), userModel));
+    }
     private void authenticate(String username, String password) throws Exception {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
